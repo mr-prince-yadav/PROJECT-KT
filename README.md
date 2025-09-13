@@ -12,8 +12,8 @@ This project is a **web-based student portal** built using **Streamlit**. It pro
 
 #### **Authentication**
 
-* Admin login (`username=prince`, `password=admin`).
-* Student login (`rollno: 14001–14067`, `password: student name in lowercase`).
+* Admin login.
+* Student login.
 * Help request option for forgotten credentials.
 
 #### **Admin Interface**
@@ -27,15 +27,15 @@ This project is a **web-based student portal** built using **Streamlit**. It pro
 
 * **Bottom navigation bar** with:
 
-  * 🏠 Home → Attendance dashboard (charts + table).
-  * 💬 Message → Send messages to admin.
+  * 🏠 Home → Attendance, Subject-Performance dashboard.
+  * 💬 Message → Send messages to admin and get hier queries solve directly from admin.
   * 🪪 Student ID → Auto-generated ID card with QR code of PSID.
   * 🔔 Broadcast → Read-only admin announcements.
   * 👤 Personal Info → Student details and logout option.
 
 #### **Utilities**
 
-* Student dataset (roll numbers 14001–14067) with auto-generated personal info, marks, and attendance.
+* Student dataset with auto-generated personal info, marks, and attendance.
 * Messaging system between students and admin.
 * Broadcast management for announcements.
 * QR code generator for student ID.
@@ -44,6 +44,8 @@ This project is a **web-based student portal** built using **Streamlit**. It pro
 
 * **Frontend/Backend:** [Streamlit](https://streamlit.io/)
 * **Data Handling:** Pandas, NumPy
+* **Database:** Firebase, firebase_admin, firestore
+* **Machine-Learning Algorithm:** RandomForest, Hypertuning, Caliberation, Thresold
 * **Visualization:** Altair, Streamlit Charts
 * **Extras:** QRCode (for student IDs), Pillow
 
