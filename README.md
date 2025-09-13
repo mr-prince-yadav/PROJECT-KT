@@ -70,6 +70,7 @@ This project is a **web-based student portal** built using **Streamlit**. It pro
 * Improved UI/UX with advanced theming.
 
 ---
+### License
+This project is licensed under the MIT License.
 
-Do you want me to also **write a professional `README.md` file** for this repository in GitHub style formatting?
 
