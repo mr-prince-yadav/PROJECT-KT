@@ -19,8 +19,7 @@ load_dotenv()
 # Firebase Init
 # ------------------
 if not firebase_admin._apps:
-    firebase_key = st.secrets["FIREBASE_KEY"]  # this is a TOML section
-    firebase_key_dict = dict(firebase_key)     # explicitly convert to dict
+    firebase_key_dict = st.secrets["FIREBASE_KEY"]  # already behaves like dict
     cred = credentials.Certificate(firebase_key_dict)
     firebase_admin.initialize_app(cred)
 
