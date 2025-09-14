@@ -17,20 +17,12 @@ load_dotenv()
 
 # ------------------
 # Firebase Init
+# ------------------
 if not firebase_admin._apps:
-    try:
-        # Streamlit Cloud
-        firebase_key = st.secrets["FIREBASE_KEY"]
-    except Exception:
-        # Local development
-        firebase_key = os.getenv("FIREBASE_KEY")
-
-    if firebase_key:
-        cred_dict = json.loads(firebase_key)
-        cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred)
-    else:
-        raise ValueError("FIREBASE_KEY not found in secrets or environment!")
+    firebase_key = st.secrets["FIREBASE_KEY"]  # ✅ from secrets.toml
+    cred_dict = json.loads(firebase_key)       # convert string → dict
+    cred = credentials.Certificate(cred_dict)
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
