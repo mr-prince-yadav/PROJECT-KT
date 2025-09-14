@@ -19,10 +19,11 @@ load_dotenv()
 # Firebase Init
 # ------------------
 if not firebase_admin._apps:
-    if "FIREBASE_KEY" in st.secrets:   # ✅ running on Streamlit Cloud
-        firebase_key = st.secrets["FIREBASE_KEY"]
-        cred_dict = json.loads(firebase_key)
-        cred = credentials.Certificate(cred_dict)
+    if not firebase_admin._apps:
+        firebase_key = st.secrets["FIREBASE_KEY"]  # ✅ dict, not string
+        cred = credentials.Certificate(firebase_key)
+        firebase_admin.initialize_app(cred)
+
     else:   # ✅ local dev with JSON file
         cred = credentials.Certificate("pydb-a357b-firebase-adminsdk-38foo-4bbf3fffcd.json")
     
