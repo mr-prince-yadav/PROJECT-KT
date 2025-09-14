@@ -10,13 +10,21 @@ from model import load_model, load_kt_data
 from data import initialize_data
 from admin_view import admin_dashboard
 from student_view import student_portal
+from dotenv import load_dotenv
+
+# Load local .env variables
+load_dotenv()
 
 # ------------------
 # Firebase Init
-# ------------------
 if not firebase_admin._apps:
-    cred = credentials.Certificate("pydb-a357b-firebase-adminsdk-38foo-4bbf3fffcd.json")
-    firebase_admin.initialize_app(cred)
+    firebase_key = os.getenv("FIREBASE_KEY")
+    if firebase_key:
+        cred_dict = json.loads(firebase_key)
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin.initialize_app(cred)
+    else:
+        raise ValueError("FIREBASE_KEY not set in environment!")
 
 db = firestore.client()
 

@@ -10,6 +10,7 @@ numpy==1.26.4
 
 # Firebase Admin SDK
 firebase-admin==6.5.0
+python-dotenv
 
 # Protobuf (compatible version)
 protobuf==4.25.3
