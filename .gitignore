@@ -20,3 +20,8 @@ Thumbs.db
 
 # Ignore local environment files
 .env
+
+# Firebase credentials
+*.json
+.env
+
