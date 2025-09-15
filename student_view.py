@@ -297,6 +297,8 @@ def student_portal(rollno, kt_data):
 
         if f"chat_{rollno}" not in st.session_state:
             st.session_state[f"chat_{rollno}"] = all_chats[chat_id]
+        # Auto-refresh chat every 3 seconds
+        st_autorefresh(interval=3000, key=f"chat_refresh_{rollno}")
 
         # ✅ Same CSS as admin
         st.markdown("""
@@ -619,6 +621,7 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
 
 
 
