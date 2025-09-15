@@ -102,12 +102,24 @@ def inject_css():
         
         /* Dark mode */
         @media (prefers-color-scheme: dark) {
-            .chat-room { background:#121212; }  /* darker background */
-            .sender { background:#075e54; color:#fff; border:1px solid #0b8b80; }
-            .receiver { background:#2a3942; color:#eaeaea; border:1px solid #3a4b53; }
-            .date-separator { color:#ccc; background:#2f3b43;}
-            .time { color:#aaa; }
+            .chat-room { background:#121212 !important; }  /* darker bg */
+            .sender { 
+                background:#075e54 !important; 
+                color:#ffffff !important; 
+                border:1px solid #0b8b80 !important; 
+            }
+            .receiver { 
+                background:#2a3942 !important; 
+                color:#eaeaea !important; 
+                border:1px solid #3a4b53 !important; 
+            }
+            .date-separator { 
+                color:#ccc !important; 
+                background:#2f3b43 !important;
+            }
+            .time { color:#aaa !important; }
         }
+
 
 
         .message-status { position:absolute; bottom:2px; right:6px; font-size:10px; color:#667781;}
@@ -201,5 +213,6 @@ def create_message_dict(from_user: str, to_user: str, text: str,
         "edited": False, "deleted": False,
         "delivered": delivered, "read": read
     }
+
 
 
