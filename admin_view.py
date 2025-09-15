@@ -284,7 +284,8 @@ def admin_dashboard(kt_data):
                 if f"chat_{selected_roll}" not in st.session_state:
                     st.session_state[f"chat_{selected_roll}"] = all_chats[chat_id]
                 # Auto-refresh chat every 3 seconds
-                st_autorefresh(interval=3000, key=f"chat_refresh_{rollno}")
+                st_autorefresh(interval=3000, key=f"chat_refresh_admin_{selected_roll}")
+
 
                 # --- Chat Window ---
                 st.markdown("""
@@ -431,6 +432,7 @@ def admin_dashboard(kt_data):
             del st.session_state['user']
         clear_session()   # 🔑 clear .session.json file too
         st.rerun()
+
 
 
 
