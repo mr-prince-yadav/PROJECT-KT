@@ -287,45 +287,51 @@ def student_portal(rollno, kt_data):
 # -------------------
     elif nav == "message":
         st.subheader("💬 Messages")
-    
+
         from utils import load_chats, save_chats
+        from chat_ui import inject_css
+
         all_chats = load_chats()
-    
         chat_id = f"chat_{rollno}"
+
+        # Initialize chat if missing
         if chat_id not in all_chats:
             all_chats[chat_id] = []
-    
+
         if f"chat_{rollno}" not in st.session_state:
             st.session_state[f"chat_{rollno}"] = all_chats[chat_id]
-    
-        # ✅ Inject WhatsApp-like CSS (from chat_ui.py)
+
+        # ✅ Inject WhatsApp-like CSS (light + dark mode)
         inject_css()
-    
+
         # --- Chat Window ---
         html_msgs = "<div class='chat-room'>"
         last_date = None
-        for i, msg in enumerate(st.session_state[f"chat_{rollno}"]):
+        for msg in st.session_state[f"chat_{rollno}"]:
             dt = datetime.datetime.fromisoformat(msg["time"])
             msg_date = dt.date()
             if msg_date != last_date:
                 html_msgs += f"<div class='date-separator'>{msg_date.strftime('%A, %d %B %Y')}</div>"
                 last_date = msg_date
-    
-            is_me = (msg["from"] == "student")
-            bubble_class = "sender" if is_me else "receiver"
-            html_msgs += f"<div class='chat-bubble {bubble_class}'>{msg['text']}<div class='time'>{dt.strftime('%I:%M %p')}</div></div>"
-    
+
+            bubble_class = "sender" if msg["from"] == "student" else "receiver"
+            html_msgs += f"""
+                <div class='chat-bubble {bubble_class}'>
+                    {msg['text']}
+                    <div class='time'>{dt.strftime('%I:%M %p')}</div>
+                </div>
+            """
         html_msgs += "</div>"
         st.markdown(html_msgs, unsafe_allow_html=True)
-    
-        # --- Input ---
+
+        # --- Chat Input ---
         with st.form(key=f"form_student_{rollno}", clear_on_submit=True):
             col1, col2 = st.columns([8, 1])
             with col1:
                 new_msg = st.text_area("Type message", height=70, label_visibility="collapsed")
             with col2:
                 submit = st.form_submit_button("➤")
-    
+
             if submit and new_msg.strip():
                 msg_obj = {
                     "from": "student",
@@ -335,10 +341,10 @@ def student_portal(rollno, kt_data):
                 }
                 st.session_state[f"chat_{rollno}"].append(msg_obj)
                 all_chats[chat_id] = st.session_state[f"chat_{rollno}"]
-                save_chats(all_chats)
+                save_chats(all_chats)  # ✅ permanent save
                 st.rerun()
-    
-        # --- Delete all chat for student ---
+
+        # --- Delete all chat (student side) ---
         if st.button("🗑️ Delete My Chat", key=f"del_student_{rollno}"):
             st.session_state[f"chat_{rollno}"] = []
             all_chats[chat_id] = []
@@ -564,6 +570,7 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
 
 
 
