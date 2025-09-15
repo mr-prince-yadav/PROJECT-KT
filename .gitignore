@@ -1,8 +1,4 @@
-# Ignore Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+
 
 # Ignore virtual environment
 venv/
