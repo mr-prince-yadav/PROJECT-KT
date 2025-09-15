@@ -7,7 +7,8 @@ from PIL import Image
 import io
 import base64
 import joblib
-
+from utils import load_chats, save_chats, load_profiles, save_profiles
+import datetime
 from utils import clear_session
 from data import get_student_record
 from utils import generate_qr
@@ -279,113 +280,63 @@ def student_portal(rollno, kt_data):
 # -------------------
 # MESSAGES
 # -------------------
+
+
+# -------------------
+# SIMPLE PERSISTENT LOCAL CHAT
+# -------------------
     elif nav == "message":
-        st.subheader("Messages with Admin")
-        inject_css()
-        db = firestore.client()
-
-        chat_id = f"{rollno}_admin"
-
-        # Auto refresh every 5 seconds
-        st_autorefresh(interval=5000, limit=10000, key=f"refresh_{chat_id}")
-
-        # First load of messages
-        if f"chat_messages_{chat_id}" not in st.session_state:
-            msgs_page, oldest = fetch_chat(chat_id, limit=30)
-            st.session_state[f"chat_messages_{chat_id}"] = msgs_page
-            st.session_state[f"chat_oldest_time_{chat_id}"] = oldest
-        else:
-            msgs_page = st.session_state[f"chat_messages_{chat_id}"]
-            oldest = st.session_state[f"chat_oldest_time_{chat_id}"]
-
-        # Delete all chat
-        if st.button("🗑️ Delete All Chat", key=f"del_all_student_{rollno}"):
-            try:
-                msgs_ref = db.collection("chats").document(chat_id).collection("messages").stream()
-                for m in msgs_ref:
-                    db.collection("chats").document(chat_id).collection("messages").document(m.id).delete()
-                st.success("All chat messages deleted.")
-                st.session_state[f"chat_messages_{chat_id}"] = []
-                st.session_state[f"chat_oldest_time_{chat_id}"] = None
+        st.subheader("💬 Messages")
+    
+        # Load existing chats from file
+        all_chats = load_chats()
+        chat_id = f"chat_{rollno}"
+        if chat_id not in all_chats:
+            all_chats[chat_id] = []
+    
+        # Session mirror (for speed)
+        if "local_chat" not in st.session_state:
+            st.session_state.local_chat = all_chats[chat_id]
+    
+        # UI rendering (same as before)
+        st.markdown("""<style> ... (same CSS as before) ... </style>""", unsafe_allow_html=True)
+    
+        # Chat window
+        html_msgs = "<div class='chat-room'>"
+        last_date = None
+        for msg in st.session_state.local_chat:
+            dt = datetime.datetime.fromisoformat(msg["time"])
+            msg_date = dt.date()
+            if msg_date != last_date:
+                html_msgs += f"<div class='date-separator'>{msg_date.strftime('%A, %d %B %Y')}</div>"
+                last_date = msg_date
+            bubble_class = "sender" if msg["from"] == "me" else "receiver"
+            html_msgs += f"<div class='chat-bubble {bubble_class}'>{msg['text']}<div class='time'>{dt.strftime('%I:%M %p')}</div></div>"
+        html_msgs += "</div>"
+        st.markdown(html_msgs, unsafe_allow_html=True)
+    
+        # Input
+        with st.form(key="chat_form", clear_on_submit=True):
+            col1, col2 = st.columns([8,1])
+            with col1:
+                new_msg = st.text_area("Type message", height=50, label_visibility="collapsed")
+            with col2:
+                submit = st.form_submit_button("➤")
+    
+            if submit and new_msg.strip():
+                msg_obj = {"from":"me","text":new_msg.strip(),"time":datetime.datetime.now().isoformat()}
+                st.session_state.local_chat.append(msg_obj)
+                all_chats[chat_id] = st.session_state.local_chat
+                save_chats(all_chats)  # ✅ save permanently
                 st.rerun()
-            except Exception as e:
-                st.error(f"Failed to delete chat: {e}")
-
-        msgs = st.session_state.get(f"chat_messages_{chat_id}", [])
-
-        # Button to load older messages
-        if st.session_state.get(f"chat_oldest_time_{chat_id}"):
-            if st.button("⬇ Load older messages", key=f"load_older_{chat_id}"):
-                older_msgs, new_oldest = get_chat_messages(chat_id, limit=30, before_time=st.session_state[f"chat_oldest_time_{chat_id}"])
-                if older_msgs:
-                    st.session_state[f"chat_messages_{chat_id}"] = older_msgs + st.session_state[f"chat_messages_{chat_id}"]
-                    st.session_state[f"chat_oldest_time_{chat_id}"] = new_oldest
-                else:
-                    st.info("No older messages.")
-
-        # Show messages
-        if not msgs:
-            st.info("No messages yet. Start the conversation!")
-        else:
-            html_msgs = "<div class='chat-room'><div class='chat-window'>"
-            last_date = None
-
-            for m in msgs:
-                ts = m.get("time")
-                try:
-                    if hasattr(ts, "to_pydatetime"):
-                        date_label = ts.to_pydatetime().date()
-                    else:
-                        date_label = ts.date() if ts else None
-                except Exception:
-                    date_label = None
-
-                if date_label != last_date:
-                    if date_label:
-                        html_msgs += f"<div class='date-separator'>{date_label.strftime('%A, %d %B %Y')}</div>"
-                    last_date = date_label
-
-                is_me = (m.get("from") == str(rollno))
-                timestr = _format_time(ts)
-                text = m.get("text", "")
-                bubble_class = "sender" if is_me else "receiver"
-
-                html_msgs += f'<div class="chat-bubble {bubble_class}">{text}<div class="time">{timestr}</div></div>'
-
-            html_msgs += "</div></div>"
-            st.markdown(html_msgs, unsafe_allow_html=True)
-
-        # Input area
-        st.markdown("<div class='chat-input'>", unsafe_allow_html=True)
-        with st.form(key=f"form_student_{rollno}", clear_on_submit=True):
-            col_text, col_send = st.columns([8, 1])
-            with col_text:
-                new_msg = st.text_input("Type your message", key=f"msg_student_{rollno}", label_visibility="collapsed")
-            with col_send:
-                submit = st.form_submit_button("Send")
-
-            if submit and new_msg and new_msg.strip():
-                try:
-                    db.collection("chats").document(chat_id).collection("messages").add({
-                        "from": str(rollno),
-                        "to": "admin",
-                        "text": new_msg.strip(),
-                        "time": pd.Timestamp.now(),
-                        "edited": False,
-                        "deleted": False,
-                    })
-                    st.session_state[f"chat_messages_{chat_id}"].append({
-                        "from": str(rollno),
-                        "to": "admin",
-                        "text": new_msg.strip(),
-                        "time": pd.Timestamp.now(),
-                        "edited": False,
-                        "deleted": False,
-                    })
-                    st.rerun()
-                except Exception as e:
-                    st.error("Failed to send message: " + str(e))
-        st.markdown("</div>", unsafe_allow_html=True)
+    
+        # Delete all chat
+        if st.button("🗑️ Delete Chat"):
+            st.session_state.local_chat = []
+            all_chats[chat_id] = []
+            save_chats(all_chats)
+            st.success("Chat cleared!")
+            st.rerun()
 
   # -------------------
 # ID CARD
@@ -605,5 +556,6 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
 
 
