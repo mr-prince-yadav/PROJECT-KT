@@ -6,6 +6,9 @@ pandas
 numpy
 openpyxl
 qrcode
+python-dotenv
+altair
+
 # ML
 scikit-learn
 joblib
@@ -14,4 +17,5 @@ joblib
 firebase-admin
 protobuf==3.20.3
 google-cloud-firestore
+
 
