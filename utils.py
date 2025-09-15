@@ -9,6 +9,32 @@ from firebase_admin import firestore
 # utils.py
 
 from firebase_admin import firestore
+import json, os
+
+CHAT_FILE = "chat_data.json"
+PROFILE_FILE = "profile_data.json"
+
+# ---------------- CHAT ----------------
+def load_chats():
+    if os.path.exists(CHAT_FILE):
+        with open(CHAT_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_chats(chats):
+    with open(CHAT_FILE, "w") as f:
+        json.dump(chats, f, indent=2, default=str)
+
+# ---------------- PROFILE ----------------
+def load_profiles():
+    if os.path.exists(PROFILE_FILE):
+        with open(PROFILE_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_profiles(profiles):
+    with open(PROFILE_FILE, "w") as f:
+        json.dump(profiles, f, indent=2, default=str)
 
 def get_chat_messages(chat_id, limit=30, before_time=None):
     """
@@ -65,5 +91,6 @@ def generate_qr(data, size=200):
     img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
     img = img.resize((size, size))
     return img
+
 
 
