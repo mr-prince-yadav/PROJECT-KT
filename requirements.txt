@@ -1,46 +1,20 @@
-# Core framework
+# Core
 streamlit==1.41.1
-streamlit
-streamlit_autorefresh
+
 # Data handling
 pandas==2.2.2
-pandas
 numpy
-altair==5.3.0
-Pillow==10.4.0
-openpyxl==3.1.5
-joblib
-qrcode
-dotenv
 scikit-learn
-# Firebase Admin SDK
+joblib
+openpyxl
+Pillow
+altair==5.3.0
+
+# Firebase
 firebase-admin==6.5.0
-firebase_admin
-# Protobuf compatible with Streamlit 1.41
 protobuf==3.20.3
+
+# Optional
 streamlit-autorefresh
-
-# Google Cloud dependencies (pinned to versions that work with protobuf 3.20.3)
-google-api-core==2.19.1
-google-auth==2.23.4
-google-cloud-core==2.3.3
-google-cloud-firestore==2.11.1
-google-cloud-storage==2.13.0
-google-crc32c==1.5.0
-google-resumable-media==2.7.0
-googleapis-common-protos==1.61.0
-
-# gRPC pinned for protobuf 3.x
-grpcio==1.58.0
-grpcio-status==1.58.0
-
-# Other utilities
-cachecontrol==0.13.1
-msgpack==1.0.7
-rsa==4.9
-pyasn1==0.5.1
-pyasn1-modules==0.3.0
-cryptography==42.0.5
-pyjwt==2.8.0
-
-
+python-dotenv
+qrcode
