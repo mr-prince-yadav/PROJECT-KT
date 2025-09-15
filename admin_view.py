@@ -33,29 +33,48 @@ def admin_dashboard(kt_data):
     
     db = firestore.client()
     
-    # Horizontal navigation
-    col1, col2, col3, col4, col5 = st.columns(5)
+    # --- Responsive Admin Nav Bar ---
+    st.markdown("""
+    <style>
+    .navbar {
+        display: flex;
+        justify-content: space-around;
+        gap: 8px;
+        margin-bottom: 15px;
+        flex-wrap: wrap; /* ✅ wraps on small screens */
+    }
+    .navbar button {
+        flex: 1 1 auto;
+        min-width: 50px;
+        max-width: 90px;
+        padding: 8px;
+        border-radius: 10px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
-    with col1:
-        if st.button("📊"):
-            st.session_state.admin_nav = "KT Predictions"; st.rerun()
-    with col2:
-        if st.button("📑"):
-            st.session_state.admin_nav = "Student Performance Analysis"; st.rerun()
-    with col3:
-        if st.button("💬"):
-            st.session_state.admin_nav = "Messages"; st.rerun()
-    with col4:
-        if st.button("📢"):
-            st.session_state.admin_nav = "Broadcast"; st.rerun()
-    with col5:
-        if st.button("🔑"):
-            st.session_state.admin_nav = "Student Credentials"; st.rerun()
-
-
-    # Default section
-# Default section
+    # Create navbar container
+    col_nav = st.container()
+    with col_nav:
+        cols = st.columns(5)
+        with cols[0]:
+            if st.button("📊", key="nav_pred"):
+                st.session_state.admin_nav = "KT Predictions"; st.rerun()
+        with cols[1]:
+            if st.button("📑", key="nav_perf"):
+                st.session_state.admin_nav = "Student Performance Analysis"; st.rerun()
+        with cols[2]:
+            if st.button("💬", key="nav_msgs"):
+                st.session_state.admin_nav = "Messages"; st.rerun()
+        with cols[3]:
+            if st.button("📢", key="nav_broadcast"):
+                st.session_state.admin_nav = "Broadcast"; st.rerun()
+        with cols[4]:
+            if st.button("🔑", key="nav_creds"):
+                st.session_state.admin_nav = "Student Credentials"; st.rerun()
+    
     tab = st.session_state.get("admin_nav", "KT Predictions")
+
 
 # ========================
 # KT Predictions Tab (Upload + Auto Prediction)
@@ -442,6 +461,7 @@ def admin_dashboard(kt_data):
             del st.session_state['user']
         clear_session()   # 🔑 clear .session.json file too
         st.rerun()
+
 
 
 
