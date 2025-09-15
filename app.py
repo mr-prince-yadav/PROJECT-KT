@@ -19,14 +19,19 @@ load_dotenv()
 # Firebase Init
 # ------------------
 if not firebase_admin._apps:
-    firebase_key_dict = st.secrets["FIREBASE_KEY"]  # already behaves like dict
-    cred = credentials.Certificate(firebase_key_dict)
+    if not firebase_admin._apps:
+        firebase_key = st.secrets["FIREBASE_KEY"]  # ✅ dict, not string
+        cred = credentials.Certificate(dict(firebase_key))
+
+        firebase_admin.initialize_app(cred)
+
+    else:   # ✅ local dev with JSON file
+        cred = credentials.Certificate("pydb-a357b-firebase-adminsdk-38foo-4bbf3fffcd.json")
+    
     firebase_admin.initialize_app(cred)
 
+
 db = firestore.client()
-
-
-
 
 # ------------------
 # App Init
