@@ -12,18 +12,20 @@ from admin_view import admin_dashboard
 from student_view import student_portal
 from dotenv import load_dotenv
 
-# Load local .env variables
-#load_dotenv()
+# Load local .env variables (optional for dev)
+load_dotenv()
 
 # ------------------
 # Firebase Init
 # ------------------
-# ------------------
-# Firebase Init
-# ------------------
 if not firebase_admin._apps:
-        cred = credentials.Certificate("pydb-a357b-firebase-adminsdk-38foo-4bbf3fffcd.json")
+    try:
+        # ✅ Use secrets.toml (Streamlit Cloud)
+        firebase_key = dict(st.secrets["FIREBASE_KEY"])
+        cred = credentials.Certificate(firebase_key)
         firebase_admin.initialize_app(cred)
+    except Exception as e:
+        st.error(f"❌ Firebase init failed: {e}")
 
 db = firestore.client()
 
