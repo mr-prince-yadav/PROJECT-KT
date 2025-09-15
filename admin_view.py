@@ -34,22 +34,45 @@ def admin_dashboard(kt_data):
     db = firestore.client()
     
     # --- Responsive Admin Nav Bar ---
-    st.markdown("""
+    # --- Responsive Admin Nav Bar with Active Tab Highlight ---
+    active_tab = st.session_state.get("admin_nav", "KT Predictions")
+    
+    st.markdown(f"""
     <style>
-    .navbar {
+    .navbar {{
         display: flex;
         justify-content: space-around;
         gap: 8px;
         margin-bottom: 15px;
-        flex-wrap: wrap; /* ✅ wraps on small screens */
-    }
-    .navbar button {
+        flex-wrap: wrap;
+    }}
+    .navbar button {{
         flex: 1 1 auto;
-        min-width: 50px;
-        max-width: 90px;
+        min-width: 60px;
+        max-width: 100px;
         padding: 8px;
         border-radius: 10px;
-    }
+        border: 1px solid #ccc;
+        background-color: #f0f0f0;
+    }}
+    /* Active tab styling */
+    .navbar .active {{
+        background-color: #25d366 !important; /* WhatsApp green */
+        color: white !important;
+        border: 1px solid #128c7e;
+    }}
+    @media (prefers-color-scheme: dark) {{
+        .navbar button {{
+            background-color: #2f2f2f;
+            color: #eee;
+            border: 1px solid #444;
+        }}
+        .navbar .active {{
+            background-color: #128c7e !important;
+            color: white !important;
+            border: 1px solid #25d366;
+        }}
+    }}
     </style>
     """, unsafe_allow_html=True)
     
@@ -60,21 +83,34 @@ def admin_dashboard(kt_data):
         with cols[0]:
             if st.button("📊", key="nav_pred"):
                 st.session_state.admin_nav = "KT Predictions"; st.rerun()
+            if active_tab == "KT Predictions":
+                st.markdown("<div class='navbar'><div class='active'></div></div>", unsafe_allow_html=True)
+    
         with cols[1]:
             if st.button("📑", key="nav_perf"):
                 st.session_state.admin_nav = "Student Performance Analysis"; st.rerun()
+            if active_tab == "Student Performance Analysis":
+                st.markdown("<div class='navbar'><div class='active'></div></div>", unsafe_allow_html=True)
+    
         with cols[2]:
             if st.button("💬", key="nav_msgs"):
                 st.session_state.admin_nav = "Messages"; st.rerun()
+            if active_tab == "Messages":
+                st.markdown("<div class='navbar'><div class='active'></div></div>", unsafe_allow_html=True)
+    
         with cols[3]:
             if st.button("📢", key="nav_broadcast"):
                 st.session_state.admin_nav = "Broadcast"; st.rerun()
+            if active_tab == "Broadcast":
+                st.markdown("<div class='navbar'><div class='active'></div></div>", unsafe_allow_html=True)
+    
         with cols[4]:
             if st.button("🔑", key="nav_creds"):
                 st.session_state.admin_nav = "Student Credentials"; st.rerun()
+            if active_tab == "Student Credentials":
+                st.markdown("<div class='navbar'><div class='active'></div></div>", unsafe_allow_html=True)
     
     tab = st.session_state.get("admin_nav", "KT Predictions")
-
 
 # ========================
 # KT Predictions Tab (Upload + Auto Prediction)
@@ -461,6 +497,7 @@ def admin_dashboard(kt_data):
             del st.session_state['user']
         clear_session()   # 🔑 clear .session.json file too
         st.rerun()
+
 
 
 
