@@ -296,11 +296,13 @@ def student_portal(rollno, kt_data):
             all_chats[chat_id] = []
 
         # Auto-refresh every 3s
-        st_autorefresh(interval=3000, key=f"chat_refresh_admin_{selected_roll}")
+        # Auto-refresh every 3s
+        st_autorefresh(interval=3000, key=f"chat_refresh_{rollno}")
         
-        # Always reload from disk so new messages appear
+        # Always reload from disk so admin’s replies show
         all_chats = load_chats()
-        st.session_state[f"chat_{selected_roll}"] = all_chats[chat_id]
+        st.session_state[f"chat_{rollno}"] = all_chats[chat_id]
+
 
 
         # ✅ Same CSS as admin
@@ -624,6 +626,7 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
 
 
 
