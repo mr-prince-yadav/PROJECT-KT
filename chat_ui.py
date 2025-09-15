@@ -133,7 +133,7 @@ def inject_css():
             background:#25d366 !important;
             color:white !important;
             border-radius:50% !important;
-            width:44px !important; height:44px !important;
+            width:60px !important; height:60px !important;
         }
 
         /* Responsive */
@@ -200,3 +200,4 @@ def create_message_dict(from_user: str, to_user: str, text: str,
         "edited": False, "deleted": False,
         "delivered": delivered, "read": read
     }
+
