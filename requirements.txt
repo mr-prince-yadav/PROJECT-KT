@@ -8,7 +8,7 @@ openpyxl
 qrcode
 python-dotenv
 altair
-
+streamlit-autorefresh
 # ML
 scikit-learn
 joblib
@@ -17,5 +17,6 @@ joblib
 firebase-admin
 protobuf==3.20.3
 google-cloud-firestore
+
 
 
