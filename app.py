@@ -24,13 +24,14 @@ load_dotenv()
 # ------------------
 if not firebase_admin._apps:
     try:
-        # 🔹 On Streamlit Cloud: secrets.toml
-        firebase_key = dict(st.secrets["FIREBASE_KEY"])
+        # Cloud: use secrets
         cred = credentials.Certificate(st.secrets["FIREBASE_KEY"])
-
     except Exception as e:
         st.warning(f"⚠️ Falling back to local JSON: {e}")
-        cred = credentials.Certificate("pydb-a357b-firebase-adminsdk-38foo-4bbf3fffcd.json")
+        from dotenv import load_dotenv
+        load_dotenv()
+        cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "pydb-a357b-firebase-adminsdk-38foo-4bbf3fffcd.json")
+        cred = credentials.Certificate(cred_path)
 
     firebase_admin.initialize_app(cred)
 
