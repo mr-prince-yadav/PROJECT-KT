@@ -109,20 +109,26 @@ def student_portal(rollno, kt_data):
 
     # Nav bar
     nav = st.session_state.get('nav', 'home')
-    tabs = st.columns(5)
-
-    if tabs[0].button("🏠", key="home"):
-        st.session_state.nav = 'home'; st.rerun()
-    if tabs[1].button("💬", key="message"):
-        st.session_state.nav = 'message'; st.rerun()
-    if tabs[2].button("🪪", key="id"):
-        st.session_state.nav = 'id'; st.rerun()
-    if tabs[3].button("📢", key="broadcast"):
-        st.session_state.nav = 'broadcast'; st.rerun()
-    if tabs[4].button("👤", key="personal"):
-        st.session_state.nav = 'personal'; st.rerun()
-
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
+    with col1:
+        if st.button("🏠", key="home"):
+            st.session_state.nav = 'home'; st.rerun()
+    with col2:
+        if st.button("💬", key="message"):
+            st.session_state.nav = 'message'; st.rerun()
+    with col3:
+        if st.button("🪪", key="id"):
+            st.session_state.nav = 'id'; st.rerun()
+    with col4:
+        if st.button("📢", key="broadcast"):
+            st.session_state.nav = 'broadcast'; st.rerun()
+    with col5:
+        if st.button("👤", key="personal"):
+            st.session_state.nav = 'personal'; st.rerun()
+    
     nav = st.session_state.get('nav', 'home')
+
 
     # -------------------
     # HOME
@@ -626,6 +632,7 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
 
 
 
