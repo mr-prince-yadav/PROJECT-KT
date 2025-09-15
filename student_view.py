@@ -387,30 +387,48 @@ def student_portal(rollno, kt_data):
                     st.error("Failed to send message: " + str(e))
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # -------------------
-    # ID CARD
-    # -------------------
+  # -------------------
+# ID CARD
+# -------------------
     elif nav == 'id':
         st.subheader("🎓 Student ID Card")
-
+    
         # Photo
         if f"photo_{rollno}" in st.session_state:
             photo_img = st.session_state[f"photo_{rollno}"]
         else:
             photo_img = Image.new('RGB', (200, 240), color=(200, 200, 200))
-
+    
         bio_photo = io.BytesIO()
         photo_img.save(bio_photo, format="PNG")
         photo_base64 = base64.b64encode(bio_photo.getvalue()).decode("utf-8")
-
+    
         # QR
         qr = generate_qr(display_psid or rec.get("psid", rec.get("PSID", "")))
         bio_qr = io.BytesIO()
         qr.save(bio_qr, format="PNG")
         qr_base64 = base64.b64encode(bio_qr.getvalue()).decode("utf-8")
-
-        # CSS + Render
-        st.markdown("""<style>/* minimal card styling */ .id-card{width:420px;border:2px solid #000;border-radius:12px;padding:12px;margin:auto;background:#fff}</style>""", unsafe_allow_html=True)
+    
+        # ✅ Updated CSS here
+        st.markdown("""
+        <style>
+        .id-card {
+          width: 420px;
+          border: 2px solid #000;
+          border-radius: 12px;
+          padding: 12px;
+          margin: auto;
+          background: #ffffff !important;
+          color: #111111 !important;
+        }
+        .id-card * {
+          color: #111111 !important;
+          -webkit-text-fill-color: #111111 !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+    
+        # Render HTML
         st.markdown(f"""
         <div class="id-card">
             <div style="text-align:center;font-weight:bold">R.J. COLLEGE of Arts, Science & Commerce</div>
@@ -587,4 +605,5 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
 
