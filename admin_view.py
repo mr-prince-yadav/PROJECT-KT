@@ -247,8 +247,14 @@ def admin_dashboard(kt_data):
 # ========================
 # Messages Tab
 # ========================
-    elif tab == 'Messages':
+        # ========================
+    # Messages Tab (Local Persistent Chat)
+    # ========================
+    elif tab == "Messages":
         st.subheader("💬 Chat with Students")
+
+        from utils import load_chats, save_chats
+        all_chats = load_chats()
 
         # --- Select Student ---
         try:
@@ -271,105 +277,81 @@ def admin_dashboard(kt_data):
             else:
                 st.markdown(f"### Chat with {rec['name']} (Roll {selected_roll})")
 
-                chat_id = f"{selected_roll}_admin"
-                st_autorefresh(interval=5000, limit=10000, key=f"refresh_{chat_id}")
+                chat_id = f"chat_{selected_roll}"
+                if chat_id not in all_chats:
+                    all_chats[chat_id] = []
 
-                # First load of messages
-                if f"chat_messages_{chat_id}" not in st.session_state:
-                    msgs_page, oldest = fetch_chat(chat_id, limit=30)
-                    st.session_state[f"chat_messages_{chat_id}"] = msgs_page
-                    st.session_state[f"chat_oldest_time_{chat_id}"] = oldest
-                else:
-                    msgs_page = st.session_state[f"chat_messages_{chat_id}"]
-                    oldest = st.session_state[f"chat_oldest_time_{chat_id}"]
-
-                # Delete all chat
-                if st.button("🗑️ Delete All Chat", key=f"del_all_{selected_roll}"):
-                    try:
-                        msgs_ref = db.collection("chats").document(chat_id).collection("messages").stream()
-                        for m in msgs_ref:
-                            db.collection("chats").document(chat_id).collection("messages").document(m.id).delete()
-                        st.success("All chat messages deleted.")
-                        st.session_state[f"chat_messages_{chat_id}"] = []
-                        st.session_state[f"chat_oldest_time_{chat_id}"] = None
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Failed to delete all chat: {e}")
-
-                msgs = st.session_state.get(f"chat_messages_{chat_id}", [])
-
-                # Button to load older messages
-                if st.session_state.get(f"chat_oldest_time_{chat_id}"):
-                    if st.button("⬇ Load older messages", key=f"load_older_{chat_id}"):
-                        older_msgs, new_oldest = get_chat_messages(chat_id, limit=30, before_time=st.session_state[f"chat_oldest_time_{chat_id}"])
-                        if older_msgs:
-                            st.session_state[f"chat_messages_{chat_id}"] = older_msgs + st.session_state[f"chat_messages_{chat_id}"]
-                            st.session_state[f"chat_oldest_time_{chat_id}"] = new_oldest
-                        else:
-                            st.info("No older messages.")
+                if f"chat_{selected_roll}" not in st.session_state:
+                    st.session_state[f"chat_{selected_roll}"] = all_chats[chat_id]
 
                 # --- Chat Window ---
-                html_msgs = "<div class='chat-room'><div class='chat-window'>"
+                st.markdown("""
+                <style>
+                .chat-room {height:65vh;overflow-y:auto;padding:10px;border:1px solid #ccc;border-radius:10px;}
+                .chat-bubble {margin:6px 0;padding:8px 12px;border-radius:15px;max-width:70%;position:relative;}
+                .sender {background:#dcf8c6;margin-left:auto;}
+                .receiver {background:#fff;margin-right:auto;border:1px solid #ddd;}
+                .time {font-size:10px;color:#555;margin-top:4px;text-align:right;}
+                .date-separator {text-align:center;font-size:12px;color:#666;margin:10px 0;}
+                </style>
+                """, unsafe_allow_html=True)
+
+                html_msgs = "<div class='chat-room'>"
                 last_date = None
-                hidden = st.session_state.get(f"hidden_msgs_admin_{selected_roll}", set())
-
-                for m in msgs:
-                    if m.get("id") in hidden:
-                        continue
-
-                    ts = m.get("time")
-                    try:
-                        if hasattr(ts, "to_pydatetime"):
-                            date_label = ts.to_pydatetime().date()
-                        else:
-                            date_label = ts.date() if ts else None
-                    except Exception:
-                        date_label = None
-
-                    if date_label != last_date:
-                        if date_label:
-                            html_msgs += f"<div class='date-separator'>{date_label.strftime('%A, %d %B %Y')}</div>"
-                        last_date = date_label
-
-                    is_me = (m.get("from") == "admin")
-                    timestr = _format_time(ts)
-                    text = m.get("text", "")
-                    bubble_class = "sender" if is_me else "receiver"
-                    html_msgs += f'<div class="chat-bubble {bubble_class}">{text}<div class="time">{timestr}</div></div>'
-
-                html_msgs += "</div></div>"
+                for msg in st.session_state[f"chat_{selected_roll}"]:
+                    dt = datetime.datetime.fromisoformat(msg["time"])
+                    msg_date = dt.date()
+                    if msg_date != last_date:
+                        html_msgs += f"<div class='date-separator'>{msg_date.strftime('%A, %d %B %Y')}</div>"
+                        last_date = msg_date
+                    bubble_class = "sender" if msg["from"] == "admin" else "receiver"
+                    html_msgs += f"<div class='chat-bubble {bubble_class}'>{msg['text']}<div class='time'>{dt.strftime('%I:%M %p')}</div></div>"
+                html_msgs += "</div>"
                 st.markdown(html_msgs, unsafe_allow_html=True)
 
                 # --- Chat Input ---
-                st.markdown("<div class='chat-input'>", unsafe_allow_html=True)
-                with st.form(key=f"form_ad_{selected_roll}", clear_on_submit=True):
-                    col_text, col_send = st.columns([8, 1])
-                    with col_text:
-                        new_msg = st.text_input("Type a message", key=f"msg_admin_{selected_roll}", label_visibility="collapsed")
-                    with col_send:
-                        submit = st.form_submit_button("Send")
-                    if submit and new_msg and new_msg.strip():
-                        try:
-                            db.collection("chats").document(chat_id).collection("messages").add({
-                                "from": "admin",
-                                "to": selected_roll,
-                                "text": new_msg.strip(),
-                                "time": datetime.datetime.now(),
-                                "edited": False,
-                                "deleted": False,
-                            })
-                            st.session_state[f"chat_messages_{chat_id}"].append({
-                                "from": "admin",
-                                "to": selected_roll,
-                                "text": new_msg.strip(),
-                                "time": datetime.datetime.now(),
-                                "edited": False,
-                                "deleted": False,
-                            })
-                            st.rerun()
-                        except Exception as e:
-                            st.error("Failed to send message: " + str(e))
-                st.markdown("</div>", unsafe_allow_html=True)  # close chat-input
+                with st.form(key=f"form_admin_{selected_roll}", clear_on_submit=True):
+                    col1, col2 = st.columns([8, 1])
+                    with col1:
+                        new_msg = st.text_area("Type message", height=70, label_visibility="collapsed")
+                    with col2:
+                        submit = st.form_submit_button("➤")
+
+                    if submit and new_msg.strip():
+                        msg_obj = {
+                            "from": "admin",
+                            "to": str(selected_roll),
+                            "text": new_msg.strip(),
+                            "time": datetime.datetime.now().isoformat()
+                        }
+                        st.session_state[f"chat_{selected_roll}"].append(msg_obj)
+                        all_chats[chat_id] = st.session_state[f"chat_{selected_roll}"]
+                        save_chats(all_chats)  # ✅ permanent save
+                        st.rerun()
+
+                # Delete all chat
+                if st.button("🗑️ Delete Chat", key=f"del_{selected_roll}"):
+                    st.session_state[f"chat_{selected_roll}"] = []
+                    all_chats[chat_id] = []
+                    save_chats(all_chats)
+                    st.success("Chat cleared!")
+                    st.rerun()
+
+        # --- Broadcast to All Students ---
+        st.divider()
+        st.subheader("📢 Broadcast Message to All Students")
+        b_msg = st.text_area("Enter broadcast message")
+        if st.button("Send Broadcast to All"):
+            if b_msg.strip():
+                now = datetime.datetime.now().isoformat()
+                for r in rollnos:
+                    cid = f"chat_{r}"
+                    if cid not in all_chats:
+                        all_chats[cid] = []
+                    all_chats[cid].append({"from": "admin", "to": r, "text": b_msg.strip(), "time": now})
+                save_chats(all_chats)
+                st.success("Broadcast sent to all students!")
+
     # ========================
     # Broadcast Tab
     # ========================
@@ -430,4 +412,5 @@ def admin_dashboard(kt_data):
             del st.session_state['user']
         clear_session()   # 🔑 clear .session.json file too
         st.rerun()
+
 
