@@ -91,7 +91,7 @@ def inject_css():
             to { opacity:1; transform:translateY(0);}
         }
 
-        /* Light mode */
+       /* Light mode */
         @media (prefers-color-scheme: light) {
             .chat-room { background:#fff; }
             .sender { background:#dcf8c6; color:#000; border:1px solid #b8e6b8; }
@@ -99,15 +99,16 @@ def inject_css():
             .date-separator { color:#666; background:rgba(255,255,255,0.9);}
             .time { color:#555; }
         }
-
+        
         /* Dark mode */
         @media (prefers-color-scheme: dark) {
-            .chat-room { background:#1e1e1e; }
-            .sender { background:#056162; color:#fff; }
-            .receiver { background:#262d31; color:#fff; border:1px solid #333; }
-            .date-separator { color:#aaa; background:#2c2c2c;}
-            .time { color:#bbb; }
+            .chat-room { background:#121212; }  /* darker background */
+            .sender { background:#075e54; color:#fff; border:1px solid #0b8b80; }
+            .receiver { background:#2a3942; color:#eaeaea; border:1px solid #3a4b53; }
+            .date-separator { color:#ccc; background:#2f3b43;}
+            .time { color:#aaa; }
         }
+
 
         .message-status { position:absolute; bottom:2px; right:6px; font-size:10px; color:#667781;}
         .edited-indicator { font-style:italic; font-size:10px; }
@@ -200,4 +201,5 @@ def create_message_dict(from_user: str, to_user: str, text: str,
         "edited": False, "deleted": False,
         "delivered": delivered, "read": read
     }
+
 
