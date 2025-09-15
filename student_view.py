@@ -316,27 +316,26 @@ def student_portal(rollno, kt_data):
         st.markdown(html_msgs, unsafe_allow_html=True)
     
         # Input
+       # Input
         with st.form(key="chat_form", clear_on_submit=True):
-            col1, col2 = st.columns([8,1])
+            col1, col2 = st.columns([8, 1])
             with col1:
-                new_msg = st.text_area("Type message", height=50, label_visibility="collapsed")
+                new_msg = st.text_area(
+                    "Type message", height=70, label_visibility="collapsed"  # ✅ height fixed
+                )
             with col2:
-                submit = st.form_submit_button("➤")
-    
+                submit = st.form_submit_button("➤")  # ✅ must be inside form
+        
             if submit and new_msg.strip():
-                msg_obj = {"from":"me","text":new_msg.strip(),"time":datetime.datetime.now().isoformat()}
+                msg_obj = {
+                    "from": "me",
+                    "text": new_msg.strip(),
+                    "time": datetime.datetime.now().isoformat()
+                }
                 st.session_state.local_chat.append(msg_obj)
                 all_chats[chat_id] = st.session_state.local_chat
-                save_chats(all_chats)  # ✅ save permanently
+                save_chats(all_chats)  # ✅ persist locally
                 st.rerun()
-    
-        # Delete all chat
-        if st.button("🗑️ Delete Chat"):
-            st.session_state.local_chat = []
-            all_chats[chat_id] = []
-            save_chats(all_chats)
-            st.success("Chat cleared!")
-            st.rerun()
 
   # -------------------
 # ID CARD
@@ -556,6 +555,7 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
 
 
 
