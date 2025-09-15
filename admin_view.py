@@ -33,18 +33,25 @@ def admin_dashboard(kt_data):
     
     db = firestore.client()
     
-    nav1, nav2, nav3, nav4, nav5 = st.columns(5)
+    # Horizontal navigation
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
+    with col1:
+        if st.button("📊"):
+            st.session_state.admin_nav = "KT Predictions"; st.rerun()
+    with col2:
+        if st.button("📑"):
+            st.session_state.admin_nav = "Student Performance Analysis"; st.rerun()
+    with col3:
+        if st.button("💬"):
+            st.session_state.admin_nav = "Messages"; st.rerun()
+    with col4:
+        if st.button("📢"):
+            st.session_state.admin_nav = "Broadcast"; st.rerun()
+    with col5:
+        if st.button("🔑"):
+            st.session_state.admin_nav = "Student Credentials"; st.rerun()
 
-    if nav1.button("📊"): 
-        st.session_state.admin_nav = "KT Predictions"; st.rerun()
-    if nav2.button("📑"): 
-        st.session_state.admin_nav = "Student Performance Analysis"; st.rerun()
-    if nav3.button("💬"): 
-        st.session_state.admin_nav = "Messages"; st.rerun()
-    if nav4.button("📢"): 
-        st.session_state.admin_nav = "Broadcast"; st.rerun()
-    if nav5.button("🔑"): 
-        st.session_state.admin_nav = "Student Credentials"; st.rerun()
 
     # Default section
 # Default section
@@ -435,6 +442,7 @@ def admin_dashboard(kt_data):
             del st.session_state['user']
         clear_session()   # 🔑 clear .session.json file too
         st.rerun()
+
 
 
 
