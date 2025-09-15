@@ -13,28 +13,23 @@ from student_view import student_portal
 from dotenv import load_dotenv
 
 # Load local .env variables
-load_dotenv()
+#load_dotenv()
 
-# ------------------
-# Firebase Init
-# ------------------
-#if not firebase_admin._apps:
 # ------------------
 # Firebase Init
 # ------------------
 if not firebase_admin._apps:
     try:
-        # Cloud: use secrets
+        # Cloud: FIREBASE_KEY is a dict in st.secrets
         cred = credentials.Certificate(st.secrets["FIREBASE_KEY"])
+        firebase_admin.initialize_app(cred)
     except Exception as e:
-        st.warning(f"⚠️ Falling back to local JSON: {e}")
+        st.warning(f"⚠️ Using local JSON because secrets failed: {e}")
         from dotenv import load_dotenv
         load_dotenv()
         cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "pydb-a357b-firebase-adminsdk-38foo-4bbf3fffcd.json")
         cred = credentials.Certificate(cred_path)
-
-    firebase_admin.initialize_app(cred)
-
+        firebase_admin.initialize_app(cred)
 
 
 db = firestore.client()
