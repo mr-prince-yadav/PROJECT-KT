@@ -1,21 +1,16 @@
 # Core
 streamlit==1.41.1
 
-# Data handling
-#pandas==2.2.2
-#numpy
-#scikit-learn
-#joblib
-#openpyxl
-#Pillow
-#altair==5.3.0
+# Data
+pandas
+numpy
+openpyxl
+
+# ML
+scikit-learn
+joblib
 
 # Firebase
-firebase-admin==6.5.0
-#protobuf==3.20.3
-
-# Optional
-streamlit-autorefresh
-#python-dotenv
-#qrcode
-
+firebase-admin
+protobuf==3.20.3
+google-cloud-firestore
