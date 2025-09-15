@@ -307,7 +307,6 @@ def student_portal(rollno, kt_data):
             padding:10px;
             border:1px solid #ccc;
             border-radius:10px;
-            background:#111;
         }
         .chat-bubble {
             margin:6px 0;
@@ -317,31 +316,30 @@ def student_portal(rollno, kt_data):
             position:relative;
             word-wrap:break-word;
         }
-        .sender {
-            background:#128C7E;
-            color:#fff;
-            margin-left:auto;
-        }
-        .receiver {
-            background:#2a3942;
-            color:#fff;
-            margin-right:auto;
-            border:1px solid #3a4b53;
-        }
-        .time {
-            font-size:10px;
-            color:#bbb;
-            margin-top:4px;
-            text-align:right;
-        }
         .date-separator {
             text-align:center;
             font-size:12px;
-            color:#aaa;
             margin:10px 0;
+        }
+        
+        /* Light mode */
+        @media (prefers-color-scheme: light) {
+            .sender { background:#dcf8c6; color:#000; margin-left:auto; border:1px solid #b8e6b8; }
+            .receiver { background:#ffffff; color:#000; margin-right:auto; border:1px solid #ddd; }
+            .time { font-size:10px; color:#555; text-align:right; }
+            .date-separator { color:#666; }
+        }
+        
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            .sender { background:#075e54; color:#fff; margin-left:auto; border:1px solid #0b8b80; }
+            .receiver { background:#2a3942; color:#eaeaea; margin-right:auto; border:1px solid #3a4b53; }
+            .time { font-size:10px; color:#aaa; text-align:right; }
+            .date-separator { color:#ccc; }
         }
         </style>
         """, unsafe_allow_html=True)
+        
 
         # --- Build chat HTML safely ---
         chat_html = ["<div class='chat-room'>"]
@@ -358,7 +356,9 @@ def student_portal(rollno, kt_data):
                 )
                 last_date = msg_date
 
-            bubble_class = "sender" if msg["from"] == "student" else "receiver"
+            is_me = (msg["from"] == "student")
+            bubble_class = "sender" if is_me else "receiver"
+
 
             # 🔑 Strip newlines and avoid nested markdown
             chat_html.append(
@@ -619,6 +619,7 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
 
 
 
