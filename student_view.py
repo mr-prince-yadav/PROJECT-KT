@@ -287,54 +287,64 @@ def student_portal(rollno, kt_data):
 # -------------------
     elif nav == "message":
         st.subheader("💬 Messages")
-    
-        # Load existing chats from file
+
+        from utils import load_chats, save_chats
         all_chats = load_chats()
+
         chat_id = f"chat_{rollno}"
         if chat_id not in all_chats:
             all_chats[chat_id] = []
-    
-        # Session mirror (for speed)
-        if "local_chat" not in st.session_state:
-            st.session_state.local_chat = all_chats[chat_id]
-    
-        # UI rendering (same as before)
-        st.markdown("""<style> ... (same CSS as before) ... </style>""", unsafe_allow_html=True)
-    
-        # Chat window
+
+        if f"chat_{rollno}" not in st.session_state:
+            st.session_state[f"chat_{rollno}"] = all_chats[chat_id]
+
+        # --- CSS (same as admin) ---
+        st.markdown("""
+        <style>
+        .chat-room {height:65vh;overflow-y:auto;padding:10px;border:1px solid #ccc;border-radius:10px;}
+        .chat-bubble {margin:6px 0;padding:8px 12px;border-radius:15px;max-width:70%;position:relative;}
+        .sender {background:#dcf8c6;margin-left:auto;}
+        .receiver {background:#fff;margin-right:auto;border:1px solid #ddd;}
+        .time {font-size:10px;color:#555;margin-top:4px;text-align:right;}
+        .date-separator {text-align:center;font-size:12px;color:#666;margin:10px 0;}
+        </style>
+        """, unsafe_allow_html=True)
+
+        # --- Chat Window ---
         html_msgs = "<div class='chat-room'>"
         last_date = None
-        for msg in st.session_state.local_chat:
+        for msg in st.session_state[f"chat_{rollno}"]:
             dt = datetime.datetime.fromisoformat(msg["time"])
             msg_date = dt.date()
             if msg_date != last_date:
                 html_msgs += f"<div class='date-separator'>{msg_date.strftime('%A, %d %B %Y')}</div>"
                 last_date = msg_date
-            bubble_class = "sender" if msg["from"] == "me" else "receiver"
+
+            is_me = (msg["from"] == "student")
+            bubble_class = "sender" if is_me else "receiver"
             html_msgs += f"<div class='chat-bubble {bubble_class}'>{msg['text']}<div class='time'>{dt.strftime('%I:%M %p')}</div></div>"
+
         html_msgs += "</div>"
         st.markdown(html_msgs, unsafe_allow_html=True)
-    
-        # Input
-       # Input
-        with st.form(key="chat_form", clear_on_submit=True):
+
+        # --- Input ---
+        with st.form(key=f"form_student_{rollno}", clear_on_submit=True):
             col1, col2 = st.columns([8, 1])
             with col1:
-                new_msg = st.text_area(
-                    "Type message", height=70, label_visibility="collapsed"  # ✅ height fixed
-                )
+                new_msg = st.text_area("Type message", height=70, label_visibility="collapsed")
             with col2:
-                submit = st.form_submit_button("➤")  # ✅ must be inside form
-        
+                submit = st.form_submit_button("➤")
+
             if submit and new_msg.strip():
                 msg_obj = {
-                    "from": "me",
+                    "from": "student",
+                    "to": "admin",
                     "text": new_msg.strip(),
                     "time": datetime.datetime.now().isoformat()
                 }
-                st.session_state.local_chat.append(msg_obj)
-                all_chats[chat_id] = st.session_state.local_chat
-                save_chats(all_chats)  # ✅ persist locally
+                st.session_state[f"chat_{rollno}"].append(msg_obj)
+                all_chats[chat_id] = st.session_state[f"chat_{rollno}"]
+                save_chats(all_chats)
                 st.rerun()
 
   # -------------------
@@ -555,6 +565,7 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
 
 
 
