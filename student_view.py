@@ -311,22 +311,23 @@ def student_portal(rollno, kt_data):
         """, unsafe_allow_html=True)
 
         # --- Chat Window ---
+       # --- Chat Window ---
         html_msgs = "<div class='chat-room'>"
         last_date = None
-        for msg in st.session_state[f"chat_{rollno}"]:
+        for i, msg in enumerate(st.session_state[f"chat_{rollno}"]):
             dt = datetime.datetime.fromisoformat(msg["time"])
             msg_date = dt.date()
             if msg_date != last_date:
                 html_msgs += f"<div class='date-separator'>{msg_date.strftime('%A, %d %B %Y')}</div>"
                 last_date = msg_date
-
+        
             is_me = (msg["from"] == "student")
             bubble_class = "sender" if is_me else "receiver"
             html_msgs += f"<div class='chat-bubble {bubble_class}'>{msg['text']}<div class='time'>{dt.strftime('%I:%M %p')}</div></div>"
-
+        
         html_msgs += "</div>"
         st.markdown(html_msgs, unsafe_allow_html=True)
-
+        
         # --- Input ---
         with st.form(key=f"form_student_{rollno}", clear_on_submit=True):
             col1, col2 = st.columns([8, 1])
@@ -334,7 +335,7 @@ def student_portal(rollno, kt_data):
                 new_msg = st.text_area("Type message", height=70, label_visibility="collapsed")
             with col2:
                 submit = st.form_submit_button("➤")
-
+        
             if submit and new_msg.strip():
                 msg_obj = {
                     "from": "student",
@@ -346,6 +347,15 @@ def student_portal(rollno, kt_data):
                 all_chats[chat_id] = st.session_state[f"chat_{rollno}"]
                 save_chats(all_chats)
                 st.rerun()
+        
+        # --- Delete all chat for student ---
+        if st.button("🗑️ Delete My Chat", key=f"del_student_{rollno}"):
+            st.session_state[f"chat_{rollno}"] = []
+            all_chats[chat_id] = []
+            save_chats(all_chats)
+            st.success("Your chat has been cleared!")
+            st.rerun()
+
 
   # -------------------
 # ID CARD
@@ -565,6 +575,7 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
 
 
 
