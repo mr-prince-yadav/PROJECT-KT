@@ -12,20 +12,19 @@ from admin_view import admin_dashboard
 from student_view import student_portal
 from dotenv import load_dotenv
 
-# Load local .env variables (optional for dev)
+# Load local .env variables
 load_dotenv()
 
 # ------------------
 # Firebase Init
-# ------------------
 if not firebase_admin._apps:
-    try:
-        # ✅ Use secrets.toml (Streamlit Cloud)
-        firebase_key = dict(st.secrets["FIREBASE_KEY"])
-        cred = credentials.Certificate(firebase_key)
+    firebase_key = os.getenv("FIREBASE_KEY")
+    if firebase_key:
+        cred_dict = json.loads(firebase_key)
+        cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred)
-    except Exception as e:
-        st.error(f"❌ Firebase init failed: {e}")
+    else:
+        raise ValueError("FIREBASE_KEY not set in environment!")
 
 db = firestore.client()
 
