@@ -95,13 +95,14 @@ def student_portal(rollno, kt_data):
         return
 
     # Use session overrides or rec fields (try multiple capitalization forms)
-    display_name = _get_field_with_fallback(rec, rollno, ["name", "Name"], session_key_prefix="name", default="")
-    # also expose other fields with fallback
-    display_class = _get_field_with_fallback(rec, rollno, ["class", "Class"], session_key_prefix=None, default=rec.get("Class", rec.get("class", "")))
-    display_div = _get_field_with_fallback(rec, rollno, ["div", "Div"], session_key_prefix=None, default=rec.get("Div", rec.get("div", "")))
-    display_mob = _get_field_with_fallback(rec, rollno, ["mob", "Mob", "Mobile", "mobile"], session_key_prefix="mob", default=rec.get("Mob", rec.get("mob", "")))
-    display_address = _get_field_with_fallback(rec, rollno, ["address", "Address"], session_key_prefix="address", default=rec.get("Address", rec.get("address", "")))
-    display_psid = _get_field_with_fallback(rec, rollno, ["psid", "PSID", "Psid"], session_key_prefix=None, default=rec.get("PSID", rec.get("psid", "")))
+    # Fallback defaults
+    display_name = _get_field_with_fallback(rec, rollno, ["name", "Name"], session_key_prefix="name", default=f"STUDENT{rollno}")
+    display_class = _get_field_with_fallback(rec, rollno, ["class", "Class"], default="FY-IT")
+    display_div = _get_field_with_fallback(rec, rollno, ["div", "Div"], default="A")
+    display_mob = _get_field_with_fallback(rec, rollno, ["mob", "Mob", "Mobile", "mobile"], default="0000000000")
+    display_address = _get_field_with_fallback(rec, rollno, ["address", "Address"], default="Not Provided")
+    display_psid = _get_field_with_fallback(rec, rollno, ["psid", "PSID", "Psid"], default=f"PS{rollno}")
+
 
     st.header(f"Welcome {display_name} (Roll No: {rollno})")
 
@@ -586,3 +587,4 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
