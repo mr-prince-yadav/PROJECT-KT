@@ -21,7 +21,7 @@ load_dotenv()
 if not firebase_admin._apps:
     if not firebase_admin._apps:
         firebase_key = st.secrets["FIREBASE_KEY"]  # ✅ dict, not string
-        cred = credentials.Certificate(dict(firebase_key))
+        cred = credentials.Certificate(firebase_key)
 
         firebase_admin.initialize_app(cred)
 
