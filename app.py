@@ -1,22 +1,17 @@
-# app.py
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
-import json
-import os
+from dotenv import load_dotenv
 
 from auth import auth_admin, auth_student
 from model import load_model, load_kt_data
 from data import initialize_data
 from admin_view import admin_dashboard
 from student_view import student_portal
-from dotenv import load_dotenv
 
 # Load local .env variables
 load_dotenv()
 
-# ------------------
-# ------------------
 # ------------------
 # Firebase Init (using JSON file directly)
 # ------------------
@@ -25,8 +20,6 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-
-
 
 # ------------------
 # App Init
@@ -38,75 +31,68 @@ final_model = load_model()
 kt_data = load_kt_data()
 
 # ------------------
-# Helpers for persistent session
+# Session Management (per role, per device)
 # ------------------
-SESSION_FILE = ".session.json"
+def save_session(user, role):
+    st.session_state[f"{role}_user"] = user   # stored only on that device/browser
 
-def save_session(user):
-    with open(SESSION_FILE, "w") as f:
-        json.dump(user, f)
+def load_session(role):
+    return st.session_state.get(f"{role}_user", None)
 
-def load_session():
-    if os.path.exists(SESSION_FILE):
-        with open(SESSION_FILE, "r") as f:
-            return json.load(f)
-    return None
+def clear_session(role):
+    key = f"{role}_user"
+    if key in st.session_state:
+        del st.session_state[key]
 
-def clear_session():
-    if os.path.exists(SESSION_FILE):
-        os.remove(SESSION_FILE)
-
-# ------------------
-# Session Persistence
-# ------------------
-if "user" not in st.session_state:
-    st.session_state.user = load_session()  # load from file if exists
+# Ensure session keys exist
+if "student_user" not in st.session_state:
+    st.session_state.student_user = None
+if "admin_user" not in st.session_state:
+    st.session_state.admin_user = None
 
 # ------------------
 # Login / Main
 # ------------------
-if st.session_state.user is None:
+student_user = load_session("student")
+admin_user = load_session("admin")
+
+if not (student_user or admin_user):
     st.header("Login")
 
     mode = st.radio("Login as", ["Student", "Admin"])
-    if mode == "Student":
-        st.subheader("🎓 Student Login")
-    else:
-        st.subheader("🛡️ Admin Login")
-        
     if mode == "Admin":
+        st.subheader("🛡️ Admin Login")
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         if st.button("Login as Admin"):
             if auth_admin(username, password):
                 user = {"role": "admin", "username": username}
-                st.session_state.user = user
-                save_session(user)   # ✅ persist login
+                save_session(user, "admin")
                 st.rerun()
             else:
                 st.error("Invalid admin credentials")
 
     else:  # Student login
+        st.subheader("🎓 Student Login")
         rollno = st.number_input("Roll No", min_value=14001, max_value=14067, step=1)
         password = st.text_input("Password (surname in lowercase)", type="password")
         if st.button("Login as Student"):
             if auth_student(rollno, password):
                 user = {"role": "student", "rollno": int(rollno)}
-                st.session_state.user = user
-                save_session(user)   # ✅ persist login
+                save_session(user, "student")
                 st.rerun()
             else:
                 st.error("Invalid student credentials")
 
 else:
-    user = st.session_state.user
-    if user["role"] == "admin":
+    if admin_user:
         admin_dashboard(kt_data)
-    else:
-        student_portal(user["rollno"], kt_data)
+        if st.button("🔓 Logout (Admin)"):
+            clear_session("admin")
+            st.rerun()
 
-    # ✅ IMPORTANT: make sure your existing logout buttons in admin/student
-    # also call `clear_session()` before rerun
-
-
-
+    elif student_user:
+        student_portal(student_user["rollno"], kt_data)
+        if st.button("🔓 Logout (Student)"):
+            clear_session("student")
+            st.rerun()
