@@ -340,15 +340,24 @@ def admin_dashboard(kt_data):
                 st.markdown(f"### Chat with {rec['name']} (Roll {selected_roll})")
 
                 chat_id = f"chat_{selected_roll}"
+                
+                # ✅ Ensure chat exists in storage
                 if chat_id not in all_chats:
                     all_chats[chat_id] = []
-
+                    save_chats(all_chats)  # persist empty list immediately
+                
                 # Auto-refresh every 3s
                 st_autorefresh(interval=3000, key=f"chat_refresh_admin_{selected_roll}")
                 
-                # Always reload from disk so new messages appear
+                # ✅ Reload latest chats from file
                 all_chats = load_chats()
-                st.session_state[f"chat_{selected_roll}"] = all_chats[chat_id]
+                
+                # ✅ Ensure session state mirrors storage
+                if f"chat_{selected_roll}" not in st.session_state:
+                    st.session_state[f"chat_{selected_roll}"] = all_chats[chat_id]
+                else:
+                    st.session_state[f"chat_{selected_roll}"] = all_chats[chat_id]
+
 
 
 
@@ -497,6 +506,7 @@ def admin_dashboard(kt_data):
             del st.session_state['user']
         clear_session()   # 🔑 clear .session.json file too
         st.rerun()
+
 
 
 
