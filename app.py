@@ -22,18 +22,8 @@ from dotenv import load_dotenv
 # Firebase Init
 # ------------------
 if not firebase_admin._apps:
-    try:
-        # ✅ On Streamlit Cloud (secrets.toml → dict)
-        cred = credentials.Certificate(st.secrets["FIREBASE_KEY"])
-        firebase_admin.initialize_app(cred)
-        st.success("✅ Firebase initialized from Streamlit secrets")
-    except Exception as e:
-        # ✅ Local development (fall back to JSON file)
-        st.warning(f"⚠️ Using local JSON because secrets failed: {e}")
         cred = credentials.Certificate("pydb-a357b-firebase-adminsdk-38foo-4bbf3fffcd.json")
         firebase_admin.initialize_app(cred)
-
-
 
 db = firestore.client()
 

@@ -4,6 +4,9 @@ firebase-admin==6.5.0
 joblib==1.3.2
 qrcode==7.4.2
 Pillow==10.4.0
-
+pandas
+numpy
+openpyxl
+altair
 # Environment variables
 python-dotenv==1.0.1

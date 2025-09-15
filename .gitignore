@@ -22,7 +22,9 @@ Thumbs.db
 .env
 
 # Firebase credentials
+.session.json
 *.json
+
 .env
 
 .streamlit/secrets.toml
