@@ -20,8 +20,10 @@ load_dotenv()
 # Firebase Init (using JSON file directly)
 # ------------------
 if not firebase_admin._apps:
-    cred = credentials.Certificate("pydb-a357b-firebase-adminsdk.json")  # <-- your JSON file
+    firebase_key = st.secrets["FIREBASE_KEY"]  # already a dict from secrets.toml
+    cred = credentials.Certificate(dict(firebase_key))
     firebase_admin.initialize_app(cred)
+
 
 db = firestore.client()
 
@@ -105,3 +107,4 @@ else:
 
     # ✅ IMPORTANT: make sure your existing logout buttons in admin/student
     # also call `clear_session()` before rerun
+
