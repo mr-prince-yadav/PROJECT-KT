@@ -337,21 +337,6 @@ def admin_dashboard(kt_data):
                     st.success("Chat cleared!")
                     st.rerun()
 
-        # --- Broadcast to All Students ---
-        st.divider()
-        st.subheader("📢 Broadcast Message to All Students")
-        b_msg = st.text_area("Enter broadcast message")
-        if st.button("Send Broadcast to All"):
-            if b_msg.strip():
-                now = datetime.datetime.now().isoformat()
-                for r in rollnos:
-                    cid = f"chat_{r}"
-                    if cid not in all_chats:
-                        all_chats[cid] = []
-                    all_chats[cid].append({"from": "admin", "to": r, "text": b_msg.strip(), "time": now})
-                save_chats(all_chats)
-                st.success("Broadcast sent to all students!")
-
     # ========================
     # Broadcast Tab
     # ========================
@@ -412,5 +397,6 @@ def admin_dashboard(kt_data):
             del st.session_state['user']
         clear_session()   # 🔑 clear .session.json file too
         st.rerun()
+
 
 
