@@ -287,12 +287,42 @@ def admin_dashboard(kt_data):
                 # --- Chat Window ---
                 st.markdown("""
                 <style>
-                .chat-room {height:65vh;overflow-y:auto;padding:10px;border:1px solid #ccc;border-radius:10px;}
-                .chat-bubble {margin:6px 0;padding:8px 12px;border-radius:15px;max-width:70%;position:relative;}
-                .sender {background:#dcf8c6;margin-left:auto;}
-                .receiver {background:#fff;margin-right:auto;border:1px solid #ddd;}
-                .time {font-size:10px;color:#555;margin-top:4px;text-align:right;}
-                .date-separator {text-align:center;font-size:12px;color:#666;margin:10px 0;}
+                .chat-room {
+                    height:65vh;
+                    overflow-y:auto;
+                    padding:10px;
+                    border:1px solid #ccc;
+                    border-radius:10px;
+                }
+                .chat-bubble {
+                    margin:6px 0;
+                    padding:8px 12px;
+                    border-radius:15px;
+                    max-width:70%;
+                    position:relative;
+                    word-wrap:break-word;
+                }
+                .date-separator {
+                    text-align:center;
+                    font-size:12px;
+                    margin:10px 0;
+                }
+                
+                /* Light mode */
+                @media (prefers-color-scheme: light) {
+                    .sender { background:#dcf8c6; color:#000; margin-left:auto; border:1px solid #b8e6b8; }
+                    .receiver { background:#ffffff; color:#000; margin-right:auto; border:1px solid #ddd; }
+                    .time { font-size:10px; color:#555; text-align:right; }
+                    .date-separator { color:#666; }
+                }
+                
+                /* Dark mode */
+                @media (prefers-color-scheme: dark) {
+                    .sender { background:#075e54; color:#fff; margin-left:auto; border:1px solid #0b8b80; }
+                    .receiver { background:#2a3942; color:#eaeaea; margin-right:auto; border:1px solid #3a4b53; }
+                    .time { font-size:10px; color:#aaa; text-align:right; }
+                    .date-separator { color:#ccc; }
+                }
                 </style>
                 """, unsafe_allow_html=True)
 
@@ -304,7 +334,9 @@ def admin_dashboard(kt_data):
                     if msg_date != last_date:
                         html_msgs += f"<div class='date-separator'>{msg_date.strftime('%A, %d %B %Y')}</div>"
                         last_date = msg_date
-                    bubble_class = "sender" if msg["from"] == "admin" else "receiver"
+                    is_me = (msg["from"] == "admin")
+                    bubble_class = "sender" if is_me else "receiver"
+
                     html_msgs += f"<div class='chat-bubble {bubble_class}'>{msg['text']}<div class='time'>{dt.strftime('%I:%M %p')}</div></div>"
                 html_msgs += "</div>"
                 st.markdown(html_msgs, unsafe_allow_html=True)
@@ -397,6 +429,7 @@ def admin_dashboard(kt_data):
             del st.session_state['user']
         clear_session()   # 🔑 clear .session.json file too
         st.rerun()
+
 
 
 
