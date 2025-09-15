@@ -108,46 +108,84 @@ def student_portal(rollno, kt_data):
     st.header(f"Welcome {display_name} (Roll No: {rollno})")
 
     # --- Responsive Nav Bar ---
-    st.markdown("""
+    # --- Responsive Student Nav Bar with Active Tab Highlight ---
+    active_tab = st.session_state.get("nav", "home")
+    
+    st.markdown(f"""
     <style>
-    .navbar {
+    .navbar {{
         display: flex;
         justify-content: space-around;
         gap: 8px;
         margin-bottom: 15px;
-        flex-wrap: wrap; /* ✅ allows wrapping on small screens */
-    }
-    .navbar button {
+        flex-wrap: wrap; /* ✅ wraps on small screens */
+    }}
+    .navbar button {{
         flex: 1 1 auto;
         min-width: 50px;
         max-width: 80px;
         padding: 8px;
         border-radius: 10px;
-    }
+        border: 1px solid #ccc;
+        background-color: #f0f0f0;
+    }}
+    /* Active tab styling */
+    .navbar .active {{
+        background-color: #25d366 !important; /* WhatsApp green */
+        color: white !important;
+        border: 1px solid #128c7e;
+    }}
+    @media (prefers-color-scheme: dark) {{
+        .navbar button {{
+            background-color: #2f2f2f;
+            color: #eee;
+            border: 1px solid #444;
+        }}
+        .navbar .active {{
+            background-color: #128c7e !important;
+            color: white !important;
+            border: 1px solid #25d366;
+        }}
+    }}
     </style>
     """, unsafe_allow_html=True)
     
-    # Create navbar container
+    # Create navbar
     col_nav = st.container()
     with col_nav:
         cols = st.columns(5)
         with cols[0]:
             if st.button("🏠", key="home"):
                 st.session_state.nav = "home"; st.rerun()
+            if active_tab == "home":
+                st.markdown("<div class='navbar'><div class='active'></div></div>", unsafe_allow_html=True)
+    
         with cols[1]:
             if st.button("💬", key="message"):
                 st.session_state.nav = "message"; st.rerun()
+            if active_tab == "message":
+                st.markdown("<div class='navbar'><div class='active'></div></div>", unsafe_allow_html=True)
+    
         with cols[2]:
             if st.button("🪪", key="id"):
                 st.session_state.nav = "id"; st.rerun()
+            if active_tab == "id":
+                st.markdown("<div class='navbar'><div class='active'></div></div>", unsafe_allow_html=True)
+    
         with cols[3]:
             if st.button("📢", key="broadcast"):
                 st.session_state.nav = "broadcast"; st.rerun()
+            if active_tab == "broadcast":
+                st.markdown("<div class='navbar'><div class='active'></div></div>", unsafe_allow_html=True)
+    
         with cols[4]:
             if st.button("👤", key="personal"):
                 st.session_state.nav = "personal"; st.rerun()
+            if active_tab == "personal":
+                st.markdown("<div class='navbar'><div class='active'></div></div>", unsafe_allow_html=True)
     
     nav = st.session_state.get("nav", "home")
+
 
 
 
@@ -654,6 +692,7 @@ def student_portal(rollno, kt_data):
 
     st.markdown("---")
     st.caption("Use the buttons above to navigate.")
+
 
 
 
